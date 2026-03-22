@@ -1,0 +1,27 @@
+{
+  "host": "mc.ylin.cc",
+  "port": 25565,
+  "username": "216",
+  "viewDistance": 100,
+  "reconnectAttempts": 5,
+  "reconnectDelay": 10000,
+  "adminUsername": "bjdjwnwiuudjeh",
+  "maxMemories": null,
+  "idleChatInterval": 60000,
+  "idleMoveInterval": 30000,
+  "autoEatThreshold": 10,
+  "autoEquipEnabled": true,
+  "autoPickupEnabled": true,
+  "guardRange": 16,
+  "followDistance": 3,
+  "password": "x1x2x3x4x5x6",
+  "bots": [
+    {
+      "name": "bot1",
+      "host": "play.gosailing.top",
+      "port": 25565,
+      "username": "dream216",
+      "password": "x1x2x3x4x5x6"
+    }
+  ]
+}
