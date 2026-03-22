@@ -289,7 +289,7 @@ let bot = mineflayer.createBot({
 
 // 重新连接配置
 let reconnectAttempts = 0
-const MAX_RECONNECT_ATTEMPTS = config.reconnectAttempts
+const MAX_RECONNECT_ATTEMPTS = 10 // 增加到10次尝试
 const RECONNECT_DELAY = config.reconnectDelay // 使用配置中的重连延迟
 let reconnectTimeout = null
 
@@ -397,6 +397,14 @@ function handleReconnect() {
             // 重新添加记忆事件
             addMemory('spawn', '机器人重生或登录')
             adjustEmotion('happiness', 10) // 重生时感到开心
+        })
+        
+        // 重新添加死亡事件监听器
+        bot.on('death', () => {
+            addMemory('death', '机器人死亡')
+            adjustEmotion('sadness', 30) // 死亡感到非常难过
+            adjustEmotion('fear', 25) // 死亡感到非常害怕
+            console.log('机器人死亡')
         })
         
     }, RECONNECT_DELAY)
@@ -569,6 +577,7 @@ bot.on('death', () => {
   addMemory('death', '机器人死亡')
   adjustEmotion('sadness', 30) // 死亡感到非常难过
   adjustEmotion('fear', 25) // 死亡感到非常害怕
+  console.log('机器人死亡')
 })
 
 // 实体死亡事件
