@@ -10,8 +10,17 @@ class SimpleBotLauncher:
     def __init__(self, root):
         self.root = root
         self.root.title("机器人启动器")
-        self.root.geometry("800x600")
-        self.root.configure(bg="#f8f9fa")
+        self.root.geometry("900x650")
+        self.root.minsize(800, 600)
+        
+        # 设置现代主题颜色
+        self.bg_color = "#f0f2f5"
+        self.primary_color = "#3498db"
+        self.secondary_color = "#2ecc71"
+        self.accent_color = "#e74c3c"
+        self.text_color = "#2c3e50"
+        self.light_text = "#7f8c8d"
+        self.white = "#ffffff"
         
         # 配置文件
         self.config_file = "config.json"
@@ -24,13 +33,108 @@ class SimpleBotLauncher:
         # 加载配置
         self.load_config()
         
+        # 设置样式
+        self.setup_styles()
+        
         # 创建主布局
         self.create_main_layout()
         
         # 状态显示
         self.status_var = tk.StringVar(value="就绪")
-        self.status_label = tk.Label(root, textvariable=self.status_var, bg="#2c3e50", fg="white", pady=10)
+        self.status_label = tk.Label(
+            root, 
+            textvariable=self.status_var, 
+            bg=self.text_color, 
+            fg=self.white, 
+            pady=10,
+            font=("Microsoft YaHei", 10, "bold")
+        )
         self.status_label.pack(side=tk.BOTTOM, fill=tk.X)
+    
+    def setup_styles(self):
+        """设置现代样式"""
+        style = ttk.Style()
+        
+        # 设置主题
+        style.theme_use("clam")
+        
+        # 配置标签样式
+        style.configure(
+            "TLabel",
+            font=("Microsoft YaHei", 10),
+            foreground=self.text_color,
+            background=self.bg_color
+        )
+        
+        # 配置按钮样式
+        style.configure(
+            "TButton",
+            font=("Microsoft YaHei", 10, "bold"),
+            padding=(10, 5),
+            relief=tk.FLAT
+        )
+        
+        # 配置强调按钮样式
+        style.configure(
+            "Accent.TButton",
+            foreground=self.white,
+            background=self.primary_color,
+            padding=(12, 6)
+        )
+        
+        # 配置按钮悬停效果
+        style.map(
+            "Accent.TButton",
+            background=[("active", self.secondary_color)],
+            foreground=[("active", self.white)]
+        )
+        
+        # 配置标签框架样式
+        style.configure(
+            "TLabelframe",
+            font=("Microsoft YaHei", 11, "bold"),
+            foreground=self.text_color,
+            background=self.bg_color
+        )
+        
+        # 配置标签框架边框样式
+        style.configure(
+            "TLabelframe.Label",
+            font=("Microsoft YaHei", 11, "bold"),
+            foreground=self.primary_color
+        )
+        
+        # 配置输入框样式
+        style.configure(
+            "TEntry",
+            font=("Microsoft YaHei", 10),
+            padding=(8, 4),
+            relief=tk.FLAT,
+            borderwidth=2
+        )
+        
+        # 配置标签页样式
+        style.configure(
+            "TNotebook",
+            background=self.bg_color,
+            borderwidth=0
+        )
+        
+        # 配置标签页标签样式
+        style.configure(
+            "TNotebook.Tab",
+            font=("Microsoft YaHei", 10, "bold"),
+            padding=(15, 8),
+            background="#e0e0e0",
+            foreground=self.text_color
+        )
+        
+        # 配置标签页标签悬停效果
+        style.map(
+            "TNotebook.Tab",
+            background=[("active", self.primary_color), ("selected", self.primary_color)],
+            foreground=[("active", self.white), ("selected", self.white)]
+        )
     
     def load_config(self):
         """加载配置文件"""
@@ -69,13 +173,16 @@ class SimpleBotLauncher:
     
     def create_main_layout(self):
         """创建主布局"""
+        # 设置根窗口背景
+        self.root.configure(bg=self.bg_color)
+        
         # 主框架
         main_frame = ttk.Frame(self.root, padding="20")
         main_frame.pack(fill=tk.BOTH, expand=True)
         
         # 创建标签页
         notebook = ttk.Notebook(main_frame)
-        notebook.pack(fill=tk.BOTH, expand=True)
+        notebook.pack(fill=tk.BOTH, expand=True, pady=10)
         
         # 启动页面
         self.create_launch_tab(notebook)
@@ -92,19 +199,26 @@ class SimpleBotLauncher:
     def create_launch_tab(self, notebook):
         """创建启动标签页"""
         tab = ttk.Frame(notebook)
+        tab.configure(style="TFrame")
         notebook.add(tab, text="启动")
         
         # 标题
-        title_label = tk.Label(tab, text="机器人启动控制", font=("Microsoft YaHei", 16), bg="#f8f9fa", fg="#2c3e50")
+        title_label = tk.Label(
+            tab, 
+            text="机器人启动控制", 
+            font=("Microsoft YaHei", 18, "bold"), 
+            bg=self.bg_color, 
+            fg=self.primary_color
+        )
         title_label.pack(pady=20)
         
         # 连接设置
-        conn_frame = ttk.LabelFrame(tab, text="连接设置", padding="15")
-        conn_frame.pack(pady=10, padx=20, fill=tk.X)
+        conn_frame = ttk.LabelFrame(tab, text="连接设置", padding="20")
+        conn_frame.pack(pady=15, padx=30, fill=tk.X)
         
         # IP设置
         ip_frame = ttk.Frame(conn_frame)
-        ip_frame.pack(fill=tk.X, pady=8)
+        ip_frame.pack(fill=tk.X, pady=10)
         
         ttk.Label(ip_frame, text="服务器IP:", width=15).pack(side=tk.LEFT, padx=5)
         self.host_entry = ttk.Entry(ip_frame)
@@ -113,7 +227,7 @@ class SimpleBotLauncher:
         
         # 端口设置
         port_frame = ttk.Frame(conn_frame)
-        port_frame.pack(fill=tk.X, pady=8)
+        port_frame.pack(fill=tk.X, pady=10)
         
         ttk.Label(port_frame, text="端口:", width=15).pack(side=tk.LEFT, padx=5)
         self.port_entry = ttk.Entry(port_frame, width=20)
@@ -122,7 +236,7 @@ class SimpleBotLauncher:
         
         # 用户名设置
         user_frame = ttk.Frame(conn_frame)
-        user_frame.pack(fill=tk.X, pady=8)
+        user_frame.pack(fill=tk.X, pady=10)
         
         ttk.Label(user_frame, text="机器人名称:", width=15).pack(side=tk.LEFT, padx=5)
         self.username_entry = ttk.Entry(user_frame)
@@ -131,7 +245,7 @@ class SimpleBotLauncher:
         
         # 密码设置
         password_frame = ttk.Frame(conn_frame)
-        password_frame.pack(fill=tk.X, pady=8)
+        password_frame.pack(fill=tk.X, pady=10)
         
         ttk.Label(password_frame, text="登录密码:", width=15).pack(side=tk.LEFT, padx=5)
         self.password_entry = ttk.Entry(password_frame, show="*")
@@ -140,7 +254,7 @@ class SimpleBotLauncher:
         
         # 按钮区域
         button_frame = ttk.Frame(conn_frame)
-        button_frame.pack(fill=tk.X, pady=20)
+        button_frame.pack(fill=tk.X, pady=25)
         
         self.start_btn = ttk.Button(button_frame, text="启动机器人", command=self.start_bot, style="Accent.TButton")
         self.start_btn.pack(side=tk.LEFT, padx=10, fill=tk.X, expand=True)
@@ -148,26 +262,34 @@ class SimpleBotLauncher:
         self.stop_btn = ttk.Button(button_frame, text="停止机器人", command=self.stop_bot, state=tk.DISABLED)
         self.stop_btn.pack(side=tk.LEFT, padx=10, fill=tk.X, expand=True)
         
-        self.save_btn = ttk.Button(button_frame, text="保存设置", command=self.save_settings)
+        self.save_btn = ttk.Button(button_frame, text="保存设置", command=self.save_settings, style="TButton")
         self.save_btn.pack(side=tk.LEFT, padx=10, fill=tk.X, expand=True)
     
     def create_config_tab(self, notebook):
         """创建配置标签页"""
         tab = ttk.Frame(notebook)
+        tab.configure(style="TFrame")
         notebook.add(tab, text="配置")
         
         # 标题
-        title_label = tk.Label(tab, text="高级配置", font=("Microsoft YaHei", 16), bg="#f8f9fa", fg="#2c3e50")
+        title_label = tk.Label(
+            tab, 
+            text="高级配置", 
+            font=("Microsoft YaHei", 18, "bold"), 
+            bg=self.bg_color, 
+            fg=self.primary_color
+        )
         title_label.pack(pady=20)
         
         # 配置框架
-        config_frame = ttk.LabelFrame(tab, text="配置选项", padding="15")
-        config_frame.pack(pady=10, padx=20, fill=tk.BOTH, expand=True)
+        config_frame = ttk.LabelFrame(tab, text="配置选项", padding="20")
+        config_frame.pack(pady=15, padx=30, fill=tk.BOTH, expand=True)
         
         # 滚动区域
-        canvas = tk.Canvas(config_frame)
+        canvas = tk.Canvas(config_frame, bg=self.bg_color)
         scrollbar = ttk.Scrollbar(config_frame, orient="vertical", command=canvas.yview)
         scrollable_frame = ttk.Frame(canvas)
+        scrollable_frame.configure(style="TFrame")
         
         scrollable_frame.bind(
             "<Configure>",
@@ -190,33 +312,47 @@ class SimpleBotLauncher:
         self.config_entries = {}
         for key, label in config_items:
             frame = ttk.Frame(scrollable_frame)
-            frame.pack(fill=tk.X, pady=10)
+            frame.pack(fill=tk.X, pady=12)
             
-            ttk.Label(frame, text=label, width=20).pack(side=tk.LEFT, padx=5)
+            ttk.Label(frame, text=label, width=20).pack(side=tk.LEFT, padx=10)
             entry = ttk.Entry(frame)
-            entry.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
+            entry.pack(side=tk.LEFT, padx=10, fill=tk.X, expand=True)
             entry.insert(0, str(self.config.get(key, "")))
             self.config_entries[key] = entry
         
         # 保存按钮
-        save_btn = ttk.Button(scrollable_frame, text="保存所有配置", command=self.save_all_config)
-        save_btn.pack(pady=20)
+        save_btn = ttk.Button(
+            scrollable_frame, 
+            text="保存所有配置", 
+            command=self.save_all_config,
+            style="Accent.TButton"
+        )
+        save_btn.pack(pady=30)
+        save_btn.pack_configure(ipadx=20, ipady=5)
     
     def create_control_tab(self, notebook):
         """创建控制标签页"""
         tab = ttk.Frame(notebook)
+        tab.configure(style="TFrame")
         notebook.add(tab, text="控制")
         
         # 标题
-        title_label = tk.Label(tab, text="机器人控制器", font=("Microsoft YaHei", 16), bg="#f8f9fa", fg="#2c3e50")
+        title_label = tk.Label(
+            tab, 
+            text="机器人控制器", 
+            font=("Microsoft YaHei", 18, "bold"), 
+            bg=self.bg_color, 
+            fg=self.primary_color
+        )
         title_label.pack(pady=20)
         
         # 添加滚动区域
-        canvas = tk.Canvas(tab)
+        canvas = tk.Canvas(tab, bg=self.bg_color)
         scrollbar = ttk.Scrollbar(tab, orient="vertical", command=canvas.yview)
         
         # 控制框架
-        control_frame = ttk.LabelFrame(canvas, text="完全实时控制", padding="15")
+        control_frame = ttk.LabelFrame(canvas, text="完全实时控制", padding="20")
+        control_frame.configure(style="TLabelframe")
         
         # 配置滚动
         control_frame.bind(
@@ -227,20 +363,26 @@ class SimpleBotLauncher:
         canvas.create_window((0, 0), window=control_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
         
-        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=20, pady=10)
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=30, pady=15)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         
         # 移动控制
-        move_frame = ttk.LabelFrame(control_frame, text="移动控制", padding="10")
-        move_frame.pack(fill=tk.X, pady=10)
+        move_frame = ttk.LabelFrame(control_frame, text="移动控制", padding="15")
+        move_frame.pack(fill=tk.X, pady=15)
         
         # 实时控制说明
-        info_label = tk.Label(move_frame, text="按住按键持续控制，释放按键停止控制")
+        info_label = tk.Label(
+            move_frame, 
+            text="按住按键持续控制，释放按键停止控制",
+            font=("Microsoft YaHei", 10, "italic"),
+            fg=self.light_text,
+            bg=self.bg_color
+        )
         info_label.pack(pady=5)
         
         # WASD 按钮布局
         move_grid = ttk.Frame(move_frame)
-        move_grid.pack(pady=10)
+        move_grid.pack(pady=15)
         
         # 移动控制变量
         self.key_states = {
@@ -269,8 +411,12 @@ class SimpleBotLauncher:
             ("d", 1, 2),
             ("跳", 2, 1)
         ]:
-            btn = ttk.Button(move_grid, text=key.upper())
-            btn.grid(row=row, column=col, padx=5, pady=5, sticky="nsew")
+            btn = ttk.Button(
+                move_grid, 
+                text=key.upper(),
+                style="Accent.TButton"
+            )
+            btn.grid(row=row, column=col, padx=8, pady=8, sticky="nsew")
             btn.bind("<ButtonPress-1>", lambda e, k=key: on_key_press(k))
             btn.bind("<ButtonRelease-1>", lambda e, k=key: on_key_release(k))
         
@@ -291,15 +437,15 @@ class SimpleBotLauncher:
         control_frame.focus_set()
         
         # 动作控制
-        action_frame = ttk.LabelFrame(control_frame, text="动作控制", padding="10")
-        action_frame.pack(fill=tk.X, pady=10)
+        action_frame = ttk.LabelFrame(control_frame, text="动作控制", padding="15")
+        action_frame.pack(fill=tk.X, pady=15)
         
         action_grid = ttk.Frame(action_frame)
-        action_grid.pack(pady=10)
+        action_grid.pack(pady=15)
         
         # 左键按钮 - 只攻击不挖矿
-        left_btn = ttk.Button(action_grid, text="左键攻击")
-        left_btn.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+        left_btn = ttk.Button(action_grid, text="左键攻击", style="Accent.TButton")
+        left_btn.grid(row=0, column=0, padx=8, pady=8, sticky="nsew")
         
         def on_left_press(event=None):
             self.send_command("左键")
@@ -308,8 +454,8 @@ class SimpleBotLauncher:
         control_frame.bind("<ButtonPress-1>", on_left_press)
         
         # 右键按钮
-        right_btn = ttk.Button(action_grid, text="右键使用")
-        right_btn.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
+        right_btn = ttk.Button(action_grid, text="右键使用", style="Accent.TButton")
+        right_btn.grid(row=0, column=1, padx=8, pady=8, sticky="nsew")
         
         def on_right_press(event=None):
             self.send_command("右键")
@@ -318,108 +464,118 @@ class SimpleBotLauncher:
         control_frame.bind("<ButtonPress-3>", on_right_press)
         
         # 其他按钮
-        ttk.Button(action_grid, text="Q丢弃", command=lambda: self.send_command("q")).grid(row=0, column=2, padx=5, pady=5, sticky="nsew")
-        ttk.Button(action_grid, text="F切换副手", command=lambda: self.send_command("f")).grid(row=0, column=3, padx=5, pady=5, sticky="nsew")
+        ttk.Button(action_grid, text="Q丢弃", command=lambda: self.send_command("q"), style="TButton").grid(row=0, column=2, padx=8, pady=8, sticky="nsew")
+        ttk.Button(action_grid, text="F切换副手", command=lambda: self.send_command("f"), style="TButton").grid(row=0, column=3, padx=8, pady=8, sticky="nsew")
         
         # 物品栏控制
-        item_frame = ttk.LabelFrame(action_frame, text="物品栏", padding="10")
-        item_frame.pack(fill=tk.X, pady=10)
+        item_frame = ttk.LabelFrame(action_frame, text="物品栏", padding="15")
+        item_frame.pack(fill=tk.X, pady=15)
         
         item_grid = ttk.Frame(item_frame)
-        item_grid.pack(pady=10)
+        item_grid.pack(pady=15)
         
         for i in range(1, 10):
-            ttk.Button(item_grid, text=str(i), command=lambda i=i: self.send_command(str(i))).grid(row=0, column=i-1, padx=3, pady=3, sticky="nsew")
+            ttk.Button(
+                item_grid, 
+                text=str(i), 
+                command=lambda i=i: self.send_command(str(i)),
+                style="TButton"
+            ).grid(row=0, column=i-1, padx=5, pady=5, sticky="nsew")
         
         # 模式控制
-        mode_frame = ttk.LabelFrame(control_frame, text="模式控制", padding="10")
-        mode_frame.pack(fill=tk.X, pady=10)
+        mode_frame = ttk.LabelFrame(control_frame, text="模式控制", padding="15")
+        mode_frame.pack(fill=tk.X, pady=15)
         
         mode_grid = ttk.Frame(mode_frame)
-        mode_grid.pack(pady=10)
+        mode_grid.pack(pady=15)
         
-        ttk.Button(mode_grid, text="守卫", command=lambda: self.send_command("守卫")).grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
-        ttk.Button(mode_grid, text="跟着", command=lambda: self.send_command("跟着")).grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
-        ttk.Button(mode_grid, text="战斗", command=lambda: self.send_command("战斗")).grid(row=0, column=2, padx=5, pady=5, sticky="nsew")
-        ttk.Button(mode_grid, text="停止", command=lambda: self.send_command("停止")).grid(row=0, column=3, padx=5, pady=5, sticky="nsew")
+        ttk.Button(mode_grid, text="守卫", command=lambda: self.send_command("守卫"), style="Accent.TButton").grid(row=0, column=0, padx=8, pady=8, sticky="nsew")
+        ttk.Button(mode_grid, text="跟着", command=lambda: self.send_command("跟着"), style="Accent.TButton").grid(row=0, column=1, padx=8, pady=8, sticky="nsew")
+        ttk.Button(mode_grid, text="战斗", command=lambda: self.send_command("战斗"), style="Accent.TButton").grid(row=0, column=2, padx=8, pady=8, sticky="nsew")
+        ttk.Button(mode_grid, text="停止", command=lambda: self.send_command("停止"), style="TButton").grid(row=0, column=3, padx=8, pady=8, sticky="nsew")
         
         # 聊天控制
-        chat_frame = ttk.LabelFrame(control_frame, text="聊天与状态", padding="10")
-        chat_frame.pack(fill=tk.X, pady=10)
+        chat_frame = ttk.LabelFrame(control_frame, text="聊天与状态", padding="15")
+        chat_frame.pack(fill=tk.X, pady=15)
         
         chat_grid = ttk.Frame(chat_frame)
-        chat_grid.pack(pady=10, fill=tk.X)
+        chat_grid.pack(pady=15, fill=tk.X)
         
-        ttk.Label(chat_grid, text="发送消息:", width=10).pack(side=tk.LEFT, padx=5)
+        ttk.Label(chat_grid, text="发送消息:", width=10).pack(side=tk.LEFT, padx=10)
         self.chat_entry = ttk.Entry(chat_grid)
-        self.chat_entry.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
-        ttk.Button(chat_grid, text="发送", command=self.send_chat_message).pack(side=tk.LEFT, padx=5)
+        self.chat_entry.pack(side=tk.LEFT, padx=10, fill=tk.X, expand=True)
+        ttk.Button(chat_grid, text="发送", command=self.send_chat_message, style="Accent.TButton").pack(side=tk.LEFT, padx=10)
         
         status_grid = ttk.Frame(chat_frame)
-        status_grid.pack(pady=10)
+        status_grid.pack(pady=15)
         
-        ttk.Button(status_grid, text="查看情绪", command=lambda: self.send_command("查看情绪")).grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
-        ttk.Button(status_grid, text="聊家常", command=lambda: self.send_command("聊家常")).grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
-        ttk.Button(status_grid, text="帮助", command=lambda: self.send_command("帮助")).grid(row=0, column=2, padx=5, pady=5, sticky="nsew")
+        ttk.Button(status_grid, text="查看情绪", command=lambda: self.send_command("查看情绪"), style="TButton").grid(row=0, column=0, padx=8, pady=8, sticky="nsew")
+        ttk.Button(status_grid, text="聊家常", command=lambda: self.send_command("聊家常"), style="TButton").grid(row=0, column=1, padx=8, pady=8, sticky="nsew")
+        ttk.Button(status_grid, text="帮助", command=lambda: self.send_command("帮助"), style="TButton").grid(row=0, column=2, padx=8, pady=8, sticky="nsew")
         
         # 记忆查询控制
-        memory_frame = ttk.LabelFrame(control_frame, text="记忆查询", padding="10")
-        memory_frame.pack(fill=tk.X, pady=10)
+        memory_frame = ttk.LabelFrame(control_frame, text="记忆查询", padding="15")
+        memory_frame.pack(fill=tk.X, pady=15)
         
         memory_grid = ttk.Frame(memory_frame)
-        memory_grid.pack(pady=10, fill=tk.X)
+        memory_grid.pack(pady=15, fill=tk.X)
         
-        ttk.Label(memory_grid, text="记忆类型:", width=10).pack(side=tk.LEFT, padx=5)
+        ttk.Label(memory_grid, text="记忆类型:", width=10).pack(side=tk.LEFT, padx=10)
         self.memory_type = ttk.Combobox(memory_grid, values=["最近", "聊天", "攻击", "收集", "装备", "死亡", "伤害", "玩家", "方块", "天气", "时间", "经验", "饥饿", "实体", "所有"])
-        self.memory_type.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
+        self.memory_type.pack(side=tk.LEFT, padx=10, fill=tk.X, expand=True)
         self.memory_type.current(0)
         
-        ttk.Button(memory_grid, text="查询记忆", command=self.query_memory).pack(side=tk.LEFT, padx=5)
+        ttk.Button(memory_grid, text="查询记忆", command=self.query_memory, style="Accent.TButton").pack(side=tk.LEFT, padx=10)
         
         # 投影功能控制
-        projection_frame = ttk.LabelFrame(control_frame, text="投影功能", padding="10")
-        projection_frame.pack(fill=tk.X, pady=10)
+        projection_frame = ttk.LabelFrame(control_frame, text="投影功能", padding="15")
+        projection_frame.pack(fill=tk.X, pady=15)
         
         projection_grid = ttk.Frame(projection_frame)
-        projection_grid.pack(pady=10, fill=tk.X)
+        projection_grid.pack(pady=15, fill=tk.X)
         
-        ttk.Label(projection_grid, text="投影文件名:", width=15).pack(side=tk.LEFT, padx=5)
+        ttk.Label(projection_grid, text="投影文件名:", width=15).pack(side=tk.LEFT, padx=10)
         self.projection_name = ttk.Entry(projection_grid)
-        self.projection_name.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
+        self.projection_name.pack(side=tk.LEFT, padx=10, fill=tk.X, expand=True)
         
-        ttk.Button(projection_grid, text="创建投影", command=self.create_projection).pack(side=tk.LEFT, padx=5)
+        ttk.Button(projection_grid, text="创建投影", command=self.create_projection, style="Accent.TButton").pack(side=tk.LEFT, padx=10)
         
         # 精打击控制
-        pvp_frame = ttk.LabelFrame(control_frame, text="PVP控制", padding="10")
-        pvp_frame.pack(fill=tk.X, pady=10)
+        pvp_frame = ttk.LabelFrame(control_frame, text="PVP控制", padding="15")
+        pvp_frame.pack(fill=tk.X, pady=15)
         
         pvp_grid = ttk.Frame(pvp_frame)
-        pvp_grid.pack(pady=10, fill=tk.X)
+        pvp_grid.pack(pady=15, fill=tk.X)
         
-        ttk.Label(pvp_grid, text="目标玩家:", width=10).pack(side=tk.LEFT, padx=5)
+        ttk.Label(pvp_grid, text="目标玩家:", width=10).pack(side=tk.LEFT, padx=10)
         self.pvp_target = ttk.Entry(pvp_grid)
-        self.pvp_target.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
+        self.pvp_target.pack(side=tk.LEFT, padx=10, fill=tk.X, expand=True)
         
-        ttk.Button(pvp_grid, text="精打击", command=self.perform_precise_attack).pack(side=tk.LEFT, padx=5)
+        ttk.Button(pvp_grid, text="精打击", command=self.perform_precise_attack, style="Accent.TButton").pack(side=tk.LEFT, padx=10)
         
         # 机器人位置查询
-        location_frame = ttk.LabelFrame(control_frame, text="位置查询", padding="10")
-        location_frame.pack(fill=tk.X, pady=10)
+        location_frame = ttk.LabelFrame(control_frame, text="位置查询", padding="15")
+        location_frame.pack(fill=tk.X, pady=15)
         
         location_grid = ttk.Frame(location_frame)
-        location_grid.pack(pady=10)
+        location_grid.pack(pady=15)
         
-        ttk.Button(location_grid, text="查询机器人位置", command=lambda: self.send_command("机器人你在哪？")).grid(row=0, column=0, columnspan=4, padx=5, pady=5, sticky="nsew")
+        ttk.Button(location_grid, text="查询机器人位置", command=lambda: self.send_command("机器人你在哪？"), style="Accent.TButton").grid(row=0, column=0, columnspan=4, padx=8, pady=8, sticky="nsew")
         
-        ttk.Label(location_grid, text="玩家名称:", width=10).grid(row=1, column=0, padx=5, pady=5)
+        ttk.Label(location_grid, text="玩家名称:", width=10).grid(row=1, column=0, padx=8, pady=8)
         self.player_location = ttk.Entry(location_grid)
-        self.player_location.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
-        ttk.Button(location_grid, text="查询玩家位置", command=self.query_player_location).grid(row=1, column=2, padx=5, pady=5, sticky="nsew")
+        self.player_location.grid(row=1, column=1, padx=8, pady=8, sticky="nsew")
+        ttk.Button(location_grid, text="查询玩家位置", command=self.query_player_location, style="Accent.TButton").grid(row=1, column=2, padx=8, pady=8, sticky="nsew")
         
         # 控制状态
         self.control_status_var = tk.StringVar(value="未连接到机器人")
-        self.control_status_label = ttk.Label(control_frame, textvariable=self.control_status_var, foreground="red")
-        self.control_status_label.pack(pady=10)
+        self.control_status_label = ttk.Label(
+            control_frame, 
+            textvariable=self.control_status_var, 
+            foreground=self.accent_color,
+            font=("Microsoft YaHei", 10, "bold")
+        )
+        self.control_status_label.pack(pady=20)
         
         # 实时控制定时器
         self.realtime_timer = None
@@ -521,33 +677,48 @@ class SimpleBotLauncher:
     def create_memory_tab(self, notebook):
         """创建记忆标签页"""
         tab = ttk.Frame(notebook)
+        tab.configure(style="TFrame")
         notebook.add(tab, text="记忆")
         
         # 标题
-        title_label = tk.Label(tab, text="机器人记忆", font=("Microsoft YaHei", 16), bg="#f8f9fa", fg="#2c3e50")
+        title_label = tk.Label(
+            tab, 
+            text="机器人记忆", 
+            font=("Microsoft YaHei", 18, "bold"), 
+            bg=self.bg_color, 
+            fg=self.primary_color
+        )
         title_label.pack(pady=20)
         
         # 记忆框架
-        memory_frame = ttk.LabelFrame(tab, text="最近记忆", padding="15")
-        memory_frame.pack(pady=10, padx=20, fill=tk.BOTH, expand=True)
+        memory_frame = ttk.LabelFrame(tab, text="最近记忆", padding="20")
+        memory_frame.pack(pady=15, padx=30, fill=tk.BOTH, expand=True)
         
         # 搜索框
         search_frame = ttk.Frame(memory_frame)
-        search_frame.pack(fill=tk.X, pady=10)
+        search_frame.pack(fill=tk.X, pady=15)
         
-        ttk.Label(search_frame, text="搜索:", width=10).pack(side=tk.LEFT, padx=5)
+        ttk.Label(search_frame, text="搜索:", width=10).pack(side=tk.LEFT, padx=10)
         self.search_entry = ttk.Entry(search_frame)
-        self.search_entry.pack(side=tk.LEFT, padx=5, fill=tk.X, expand=True)
+        self.search_entry.pack(side=tk.LEFT, padx=10, fill=tk.X, expand=True)
         
-        search_btn = ttk.Button(search_frame, text="搜索", command=self.search_memory)
-        search_btn.pack(side=tk.LEFT, padx=5)
+        search_btn = ttk.Button(search_frame, text="搜索", command=self.search_memory, style="Accent.TButton")
+        search_btn.pack(side=tk.LEFT, padx=10)
         
-        refresh_btn = ttk.Button(search_frame, text="刷新", command=self.load_memory)
-        refresh_btn.pack(side=tk.LEFT, padx=5)
+        refresh_btn = ttk.Button(search_frame, text="刷新", command=self.load_memory, style="TButton")
+        refresh_btn.pack(side=tk.LEFT, padx=10)
         
         # 记忆显示
-        self.memory_text = scrolledtext.ScrolledText(memory_frame, wrap=tk.WORD, font=("Microsoft YaHei", 10))
-        self.memory_text.pack(fill=tk.BOTH, expand=True)
+        self.memory_text = scrolledtext.ScrolledText(
+            memory_frame, 
+            wrap=tk.WORD, 
+            font=("Microsoft YaHei", 10),
+            bg=self.white,
+            fg=self.text_color,
+            relief=tk.FLAT,
+            borderwidth=2
+        )
+        self.memory_text.pack(fill=tk.BOTH, expand=True, pady=10)
         
         # 加载记忆
         self.load_memory()

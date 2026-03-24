@@ -1,27 +1,9 @@
 {
-  "host": "",
-  "port": ,
-  "username": "",
+  "host": "0.0.0.0",
+  "port": 0,
+  "username": "xxx",
+  "password": "xxxx",
   "viewDistance": 100,
   "reconnectAttempts": 5,
-  "reconnectDelay": 10000,
-  "adminUsername": "",
-  "maxMemories": null,
-  "idleChatInterval": 60000,
-  "idleMoveInterval": 30000,
-  "autoEatThreshold": 10,
-  "autoEquipEnabled": true,
-  "autoPickupEnabled": true,
-  "guardRange": 16,
-  "followDistance": 3,
-  "password": "",
-  "bots": [
-    {
-      "name": "bot1",
-      "host": "play.gosailing.top",
-      "port": 25565,
-      "username": "dream216",
-      "password": "x1x2x3x4x5x6"
-    }
-  ]
+  "reconnectDelay": 10000
 }
