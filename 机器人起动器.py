@@ -331,15 +331,15 @@ class SimpleBotLauncher:
         save_btn.pack_configure(ipadx=20, ipady=5)
     
     def create_control_tab(self, notebook):
-        """创建控制标签页"""
+        """创建机器人指令大全标签页"""
         tab = ttk.Frame(notebook)
         tab.configure(style="TFrame")
-        notebook.add(tab, text="控制")
+        notebook.add(tab, text="机器人指令大全")
         
         # 标题
         title_label = tk.Label(
             tab, 
-            text="机器人控制器", 
+            text="机器人指令大全", 
             font=("Microsoft YaHei", 18, "bold"), 
             bg=self.bg_color, 
             fg=self.primary_color
@@ -350,330 +350,128 @@ class SimpleBotLauncher:
         canvas = tk.Canvas(tab, bg=self.bg_color)
         scrollbar = ttk.Scrollbar(tab, orient="vertical", command=canvas.yview)
         
-        # 控制框架
-        control_frame = ttk.LabelFrame(canvas, text="完全实时控制", padding="20")
-        control_frame.configure(style="TLabelframe")
+        # 指令框架
+        command_frame = ttk.LabelFrame(canvas, text="指令列表", padding="20")
+        command_frame.configure(style="TLabelframe")
         
         # 配置滚动
-        control_frame.bind(
+        command_frame.bind(
             "<Configure>",
             lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
         )
         
-        canvas.create_window((0, 0), window=control_frame, anchor="nw")
+        canvas.create_window((0, 0), window=command_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
         
         canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=30, pady=15)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         
-        # 移动控制
-        move_frame = ttk.LabelFrame(control_frame, text="移动控制", padding="15")
-        move_frame.pack(fill=tk.X, pady=15)
-        
-        # 实时控制说明
-        info_label = tk.Label(
-            move_frame, 
-            text="按住按键持续控制，释放按键停止控制",
-            font=("Microsoft YaHei", 10, "italic"),
-            fg=self.light_text,
-            bg=self.bg_color
-        )
-        info_label.pack(pady=5)
-        
-        # WASD 按钮布局
-        move_grid = ttk.Frame(move_frame)
-        move_grid.pack(pady=15)
-        
-        # 移动控制变量
-        self.key_states = {
-            "w": False,
-            "a": False,
-            "s": False,
-            "d": False,
-            "跳": False
+        # 指令分类
+        command_categories = {
+            "移动控制": [
+                ("w", "向前移动"),
+                ("s", "向后移动"),
+                ("a", "向左移动"),
+                ("d", "向右移动"),
+                ("跳", "跳跃")
+            ],
+            "动作控制": [
+                ("左键", "攻击实体"),
+                ("右键", "使用物品或交互"),
+                ("q", "丢弃物品"),
+                ("f", "切换副手物品")
+            ],
+            "物品栏": [
+                ("1", "选择物品栏第1格"),
+                ("2", "选择物品栏第2格"),
+                ("3", "选择物品栏第3格"),
+                ("4", "选择物品栏第4格"),
+                ("5", "选择物品栏第5格"),
+                ("6", "选择物品栏第6格"),
+                ("7", "选择物品栏第7格"),
+                ("8", "选择物品栏第8格"),
+                ("9", "选择物品栏第9格")
+            ],
+            "模式控制": [
+                ("守卫", "守卫当前区域"),
+                ("跟着", "跟随玩家"),
+                ("战斗", "进入战斗模式"),
+                ("停止", "停止当前动作")
+            ],
+            "聊天与状态": [
+                ("说 <内容>", "发送聊天消息"),
+                ("查看情绪", "查看机器人当前情绪状态"),
+                ("聊家常", "让机器人讲述经历"),
+                ("帮助", "显示帮助信息")
+            ],
+            "记忆查询": [
+                ("记忆 最近", "查看最近的记忆"),
+                ("记忆 聊天", "查看聊天相关记忆"),
+                ("记忆 攻击", "查看攻击相关记忆"),
+                ("记忆 收集", "查看收集物品相关记忆"),
+                ("记忆 装备", "查看装备相关记忆"),
+                ("记忆 死亡", "查看死亡相关记忆"),
+                ("记忆 伤害", "查看伤害相关记忆"),
+                ("记忆 玩家", "查看玩家相关记忆"),
+                ("记忆 方块", "查看方块相关记忆"),
+                ("记忆 天气", "查看天气相关记忆"),
+                ("记忆 时间", "查看时间相关记忆"),
+                ("记忆 经验", "查看经验相关记忆"),
+                ("记忆 饥饿", "查看饥饿相关记忆"),
+                ("记忆 实体", "查看实体相关记忆"),
+                ("记忆 所有", "查看所有记忆")
+            ],
+            "投影功能": [
+                ("投影 <文件名>", "创建投影文件")
+            ],
+            "PVP控制": [
+                ("精打击 <玩家名>", "精确攻击指定玩家")
+            ],
+            "位置查询": [
+                ("机器人你在哪？", "查询机器人当前位置"),
+                ("<玩家名>它在哪呢？", "查询指定玩家位置")
+            ],
+            "白名单管理": [
+                ("添加白名单<玩家名>", "添加玩家到白名单（仅管理员）"),
+                ("移除白名单<玩家名>", "从白名单移除玩家（仅管理员）"),
+                ("查看白名单", "查看当前白名单")
+            ]
         }
         
-        # 按键按下和释放事件处理
-        def on_key_press(key):
-            self.key_states[key] = True
-            self.start_realtime_control()
-        
-        def on_key_release(key):
-            self.key_states[key] = False
-            if not any(self.key_states.values()):
-                self.stop_realtime_control()
-        
-        # 创建按钮并绑定事件
-        for key, row, col in [
-            ("w", 0, 1),
-            ("a", 1, 0),
-            ("s", 1, 1),
-            ("d", 1, 2),
-            ("跳", 2, 1)
-        ]:
-            btn = ttk.Button(
-                move_grid, 
-                text=key.upper(),
-                style="Accent.TButton"
-            )
-            btn.grid(row=row, column=col, padx=8, pady=8, sticky="nsew")
-            btn.bind("<ButtonPress-1>", lambda e, k=key: on_key_press(k))
-            btn.bind("<ButtonRelease-1>", lambda e, k=key: on_key_release(k))
-        
-        # 键盘事件绑定
-        control_frame.bind("<KeyPress-w>", lambda e: on_key_press("w"))
-        control_frame.bind("<KeyPress-a>", lambda e: on_key_press("a"))
-        control_frame.bind("<KeyPress-s>", lambda e: on_key_press("s"))
-        control_frame.bind("<KeyPress-d>", lambda e: on_key_press("d"))
-        control_frame.bind("<KeyPress-space>", lambda e: on_key_press("跳"))
-        
-        control_frame.bind("<KeyRelease-w>", lambda e: on_key_release("w"))
-        control_frame.bind("<KeyRelease-a>", lambda e: on_key_release("a"))
-        control_frame.bind("<KeyRelease-s>", lambda e: on_key_release("s"))
-        control_frame.bind("<KeyRelease-d>", lambda e: on_key_release("d"))
-        control_frame.bind("<KeyRelease-space>", lambda e: on_key_release("跳"))
-        
-        # 聚焦以接收键盘事件
-        control_frame.focus_set()
-        
-        # 动作控制
-        action_frame = ttk.LabelFrame(control_frame, text="动作控制", padding="15")
-        action_frame.pack(fill=tk.X, pady=15)
-        
-        action_grid = ttk.Frame(action_frame)
-        action_grid.pack(pady=15)
-        
-        # 左键按钮 - 只攻击不挖矿
-        left_btn = ttk.Button(action_grid, text="左键攻击", style="Accent.TButton")
-        left_btn.grid(row=0, column=0, padx=8, pady=8, sticky="nsew")
-        
-        def on_left_press(event=None):
-            self.send_command("左键")
-        
-        left_btn.bind("<ButtonPress-1>", on_left_press)
-        control_frame.bind("<ButtonPress-1>", on_left_press)
-        
-        # 右键按钮
-        right_btn = ttk.Button(action_grid, text="右键使用", style="Accent.TButton")
-        right_btn.grid(row=0, column=1, padx=8, pady=8, sticky="nsew")
-        
-        def on_right_press(event=None):
-            self.send_command("右键")
-        
-        right_btn.bind("<ButtonPress-3>", on_right_press)
-        control_frame.bind("<ButtonPress-3>", on_right_press)
-        
-        # 其他按钮
-        ttk.Button(action_grid, text="Q丢弃", command=lambda: self.send_command("q"), style="TButton").grid(row=0, column=2, padx=8, pady=8, sticky="nsew")
-        ttk.Button(action_grid, text="F切换副手", command=lambda: self.send_command("f"), style="TButton").grid(row=0, column=3, padx=8, pady=8, sticky="nsew")
-        
-        # 物品栏控制
-        item_frame = ttk.LabelFrame(action_frame, text="物品栏", padding="15")
-        item_frame.pack(fill=tk.X, pady=15)
-        
-        item_grid = ttk.Frame(item_frame)
-        item_grid.pack(pady=15)
-        
-        for i in range(1, 10):
-            ttk.Button(
-                item_grid, 
-                text=str(i), 
-                command=lambda i=i: self.send_command(str(i)),
-                style="TButton"
-            ).grid(row=0, column=i-1, padx=5, pady=5, sticky="nsew")
-        
-        # 模式控制
-        mode_frame = ttk.LabelFrame(control_frame, text="模式控制", padding="15")
-        mode_frame.pack(fill=tk.X, pady=15)
-        
-        mode_grid = ttk.Frame(mode_frame)
-        mode_grid.pack(pady=15)
-        
-        ttk.Button(mode_grid, text="守卫", command=lambda: self.send_command("守卫"), style="Accent.TButton").grid(row=0, column=0, padx=8, pady=8, sticky="nsew")
-        ttk.Button(mode_grid, text="跟着", command=lambda: self.send_command("跟着"), style="Accent.TButton").grid(row=0, column=1, padx=8, pady=8, sticky="nsew")
-        ttk.Button(mode_grid, text="战斗", command=lambda: self.send_command("战斗"), style="Accent.TButton").grid(row=0, column=2, padx=8, pady=8, sticky="nsew")
-        ttk.Button(mode_grid, text="停止", command=lambda: self.send_command("停止"), style="TButton").grid(row=0, column=3, padx=8, pady=8, sticky="nsew")
-        
-        # 聊天控制
-        chat_frame = ttk.LabelFrame(control_frame, text="聊天与状态", padding="15")
-        chat_frame.pack(fill=tk.X, pady=15)
-        
-        chat_grid = ttk.Frame(chat_frame)
-        chat_grid.pack(pady=15, fill=tk.X)
-        
-        ttk.Label(chat_grid, text="发送消息:", width=10).pack(side=tk.LEFT, padx=10)
-        self.chat_entry = ttk.Entry(chat_grid)
-        self.chat_entry.pack(side=tk.LEFT, padx=10, fill=tk.X, expand=True)
-        ttk.Button(chat_grid, text="发送", command=self.send_chat_message, style="Accent.TButton").pack(side=tk.LEFT, padx=10)
-        
-        status_grid = ttk.Frame(chat_frame)
-        status_grid.pack(pady=15)
-        
-        ttk.Button(status_grid, text="查看情绪", command=lambda: self.send_command("查看情绪"), style="TButton").grid(row=0, column=0, padx=8, pady=8, sticky="nsew")
-        ttk.Button(status_grid, text="聊家常", command=lambda: self.send_command("聊家常"), style="TButton").grid(row=0, column=1, padx=8, pady=8, sticky="nsew")
-        ttk.Button(status_grid, text="帮助", command=lambda: self.send_command("帮助"), style="TButton").grid(row=0, column=2, padx=8, pady=8, sticky="nsew")
-        
-        # 记忆查询控制
-        memory_frame = ttk.LabelFrame(control_frame, text="记忆查询", padding="15")
-        memory_frame.pack(fill=tk.X, pady=15)
-        
-        memory_grid = ttk.Frame(memory_frame)
-        memory_grid.pack(pady=15, fill=tk.X)
-        
-        ttk.Label(memory_grid, text="记忆类型:", width=10).pack(side=tk.LEFT, padx=10)
-        self.memory_type = ttk.Combobox(memory_grid, values=["最近", "聊天", "攻击", "收集", "装备", "死亡", "伤害", "玩家", "方块", "天气", "时间", "经验", "饥饿", "实体", "所有"])
-        self.memory_type.pack(side=tk.LEFT, padx=10, fill=tk.X, expand=True)
-        self.memory_type.current(0)
-        
-        ttk.Button(memory_grid, text="查询记忆", command=self.query_memory, style="Accent.TButton").pack(side=tk.LEFT, padx=10)
-        
-        # 投影功能控制
-        projection_frame = ttk.LabelFrame(control_frame, text="投影功能", padding="15")
-        projection_frame.pack(fill=tk.X, pady=15)
-        
-        projection_grid = ttk.Frame(projection_frame)
-        projection_grid.pack(pady=15, fill=tk.X)
-        
-        ttk.Label(projection_grid, text="投影文件名:", width=15).pack(side=tk.LEFT, padx=10)
-        self.projection_name = ttk.Entry(projection_grid)
-        self.projection_name.pack(side=tk.LEFT, padx=10, fill=tk.X, expand=True)
-        
-        ttk.Button(projection_grid, text="创建投影", command=self.create_projection, style="Accent.TButton").pack(side=tk.LEFT, padx=10)
-        
-        # 精打击控制
-        pvp_frame = ttk.LabelFrame(control_frame, text="PVP控制", padding="15")
-        pvp_frame.pack(fill=tk.X, pady=15)
-        
-        pvp_grid = ttk.Frame(pvp_frame)
-        pvp_grid.pack(pady=15, fill=tk.X)
-        
-        ttk.Label(pvp_grid, text="目标玩家:", width=10).pack(side=tk.LEFT, padx=10)
-        self.pvp_target = ttk.Entry(pvp_grid)
-        self.pvp_target.pack(side=tk.LEFT, padx=10, fill=tk.X, expand=True)
-        
-        ttk.Button(pvp_grid, text="精打击", command=self.perform_precise_attack, style="Accent.TButton").pack(side=tk.LEFT, padx=10)
-        
-        # 机器人位置查询
-        location_frame = ttk.LabelFrame(control_frame, text="位置查询", padding="15")
-        location_frame.pack(fill=tk.X, pady=15)
-        
-        location_grid = ttk.Frame(location_frame)
-        location_grid.pack(pady=15)
-        
-        ttk.Button(location_grid, text="查询机器人位置", command=lambda: self.send_command("机器人你在哪？"), style="Accent.TButton").grid(row=0, column=0, columnspan=4, padx=8, pady=8, sticky="nsew")
-        
-        ttk.Label(location_grid, text="玩家名称:", width=10).grid(row=1, column=0, padx=8, pady=8)
-        self.player_location = ttk.Entry(location_grid)
-        self.player_location.grid(row=1, column=1, padx=8, pady=8, sticky="nsew")
-        ttk.Button(location_grid, text="查询玩家位置", command=self.query_player_location, style="Accent.TButton").grid(row=1, column=2, padx=8, pady=8, sticky="nsew")
-        
-        # 控制状态
-        self.control_status_var = tk.StringVar(value="未连接到机器人")
-        self.control_status_label = ttk.Label(
-            control_frame, 
-            textvariable=self.control_status_var, 
-            foreground=self.accent_color,
-            font=("Microsoft YaHei", 10, "bold")
-        )
-        self.control_status_label.pack(pady=20)
-        
-        # 实时控制定时器
-        self.realtime_timer = None
-        self.realtime_interval = 100  # 100毫秒发送一次命令
-    
-    def send_command(self, command):
-        """向机器人发送命令"""
-        try:
-            import socket
-            import json
+        # 显示指令分类和指令
+        for category, commands in command_categories.items():
+            # 创建分类框架
+            category_frame = ttk.LabelFrame(command_frame, text=category, padding="15")
+            category_frame.pack(fill=tk.X, pady=15)
             
-            # 创建TCP连接
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.connect(("127.0.0.1", 26167))
+            # 创建指令表格
+            command_grid = ttk.Frame(category_frame)
+            command_grid.pack(fill=tk.X, pady=10)
             
-            # 构建命令数据
-            command_data = {
-                "type": "command",
-                "data": {
-                    "command": command
-                }
-            }
-            
-            # 发送命令
-            sock.sendall((json.dumps(command_data) + "\n").encode("utf-8"))
-            
-            # 关闭连接
-            sock.close()
-            
-            # 更新状态
-            self.control_status_var.set(f"命令发送成功: {command}")
-            self.control_status_label.configure(foreground="green")
-            
-        except Exception as e:
-            self.control_status_var.set(f"命令发送失败: {e}")
-            self.control_status_label.configure(foreground="red")
+            # 添加指令
+            for i, (command, description) in enumerate(commands):
+                # 指令标签
+                cmd_label = tk.Label(
+                    command_grid, 
+                    text=command,
+                    font=("Microsoft YaHei", 10, "bold"),
+                    fg=self.primary_color,
+                    bg=self.bg_color
+                )
+                cmd_label.grid(row=i, column=0, padx=10, pady=5, sticky="w")
+                
+                # 指令描述
+                desc_label = tk.Label(
+                    command_grid, 
+                    text=description,
+                    font=("Microsoft YaHei", 10),
+                    fg=self.text_color,
+                    bg=self.bg_color,
+                    wraplength=400,
+                    justify=tk.LEFT
+                )
+                desc_label.grid(row=i, column=1, padx=10, pady=5, sticky="w")
     
-    def start_realtime_control(self):
-        """启动实时控制"""
-        if not self.realtime_timer:
-            self.send_realtime_commands()
-    
-    def stop_realtime_control(self):
-        """停止实时控制"""
-        if self.realtime_timer:
-            self.realtime_timer.cancel()
-            self.realtime_timer = None
-    
-    def send_realtime_commands(self):
-        """发送实时控制命令"""
-        # 发送当前按键状态对应的命令
-        for key, is_pressed in self.key_states.items():
-            if is_pressed:
-                self.send_command(key)
-        
-        # 继续定时发送
-        if any(self.key_states.values()):
-            self.realtime_timer = self.root.after(self.realtime_interval, self.send_realtime_commands)
-    
-    def send_chat_message(self):
-        """发送聊天消息"""
-        message = self.chat_entry.get().strip()
-        if message:
-            self.send_command(f"说 {message}")
-            self.chat_entry.delete(0, tk.END)
-    
-    def query_memory(self):
-        """查询记忆"""
-        memory_type = self.memory_type.get()
-        self.send_command(f"记忆 {memory_type}")
-    
-    def create_projection(self):
-        """创建投影"""
-        projection_name = self.projection_name.get().strip()
-        if projection_name:
-            self.send_command(f"投影 {projection_name}")
-            self.projection_name.delete(0, tk.END)
-        else:
-            messagebox.showerror("错误", "请输入投影文件名")
-    
-    def perform_precise_attack(self):
-        """执行精打击"""
-        target = self.pvp_target.get().strip()
-        if target:
-            self.send_command(f"精打击 {target}")
-            self.pvp_target.delete(0, tk.END)
-        else:
-            messagebox.showerror("错误", "请输入目标玩家名称")
-    
-    def query_player_location(self):
-        """查询玩家位置"""
-        player_name = self.player_location.get().strip()
-        if player_name:
-            self.send_command(f"{player_name}它在哪呢？")
-            self.player_location.delete(0, tk.END)
-        else:
-            messagebox.showerror("错误", "请输入玩家名称")
-
     def create_memory_tab(self, notebook):
         """创建记忆标签页"""
         tab = ttk.Frame(notebook)
