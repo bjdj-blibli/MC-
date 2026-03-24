@@ -1,9 +1,0 @@
-{
-  "host": "0.0.0.0",
-  "port": 0,
-  "username": "xxx",
-  "password": "xxxx",
-  "viewDistance": 100,
-  "reconnectAttempts": 5,
-  "reconnectDelay": 10000
-}
